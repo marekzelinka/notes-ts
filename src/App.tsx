@@ -1,27 +1,20 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { createNote, getAllNotes } from './services/note';
 import type { Note } from './types';
 
 const App = () => {
   const [newNote, setNewNote] = useState('');
-  const [notes, setNotes] = useState<Note[]>([
-    {
-      id: '1',
-      content: 'testing',
-    },
-  ]);
+  const [notes, setNotes] = useState<Note[]>([]);
 
-  const addNote = (content: Note['content']) => {
-    const noteObject: Note = {
-      id: String(notes.length + 1),
-      content,
-    };
-    setNotes((notes) => notes.concat(noteObject));
-  };
+  useEffect(() => {
+    getAllNotes().then(setNotes);
+  }, []);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    addNote(newNote);
+    const addedNote = await createNote({ content: newNote });
+    setNotes((notes) => notes.concat(addedNote));
 
     // Reset the form
     setNewNote('');
